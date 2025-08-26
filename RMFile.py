@@ -49,10 +49,41 @@ class RMFile():
                 self.__children.append(tempFile)
     
     def get_name(self):
+        """Gets the name of the file
+
+        Returns
+        -------
+        str
+            The files name
+        """
         return self.__vissibleName
     
     def get_id(self):
+        """Gets the id of the file
+
+        Returns
+        -------
+        str
+            The files id
+        """
         return self.__ID
     
     def get_type(self):
+        """Gets the type of the file(either 'CollectionType' or 'DocumentType')
+
+        Returns
+        -------
+        str
+            The files type
+        """
         return self.__type
+    
+    def get_children(self):
+        """Gets the children of the file if it is a 'CollectionType'
+
+        Returns
+        -------
+        list
+            The files children
+        """
+        return self.__children

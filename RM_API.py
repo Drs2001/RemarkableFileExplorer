@@ -2,10 +2,31 @@ import requests
 import sys
 
 class RM_API():
+    """
+    Class to interface with the Remarkable Tablets web based API
+
+    ...
+
+    Attributes
+    ----------
+    RM_URL : str
+        The url that the Remarkable tablets web api address is at
+    """
     def __init__(self):
         self.RM_URL = 'http://10.11.99.1'
 
     def printTreeStructure(self, parentID=None, depth=0, withID=False):
+        """Prints the file structure of the connected Remarkable Tablet
+
+        Parameters
+        ----------
+        parentID : str
+            The ID of the parent directory to start printing from, default is the root
+        depth : int
+            Simple int to control spaces when printing
+        withID : bool
+            Controls wether to print with the documents ID or not
+        """
         url = self.RM_URL + '/documents/'
 
         if parentID is not None:
@@ -31,6 +52,18 @@ class RM_API():
                 self.printTreeStructure(data['ID'], depth+1, withID)
 
     def get_directory(self, id=None):
+        """Gets all the files of the directory, defaults to root
+
+        Parameters
+        ----------
+        id : str
+            The ID of the directory to get files from
+
+        Returns
+        -------
+        list
+            a list of dictonarys representing the files on the Remarkable
+        """
         url = self.RM_URL + '/documents/'
         if id is not None:
             url = url + id

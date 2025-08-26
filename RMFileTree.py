@@ -30,3 +30,6 @@ class RMFileTree():
     
     def get_current_dir(self):
         return self.__currentDir
+    
+    def get_base_dir(self):
+        return self.__baseDir

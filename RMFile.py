@@ -50,3 +50,9 @@ class RMFile():
     
     def get_name(self):
         return self.__vissibleName
+    
+    def get_id(self):
+        return self.__ID
+    
+    def get_type(self):
+        return self.__type

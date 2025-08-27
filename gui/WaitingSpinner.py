@@ -17,7 +17,7 @@ class WaitingSpinner(QWidget):
         QWidget.__init__(self, parent)
 
         # Load the file into a QMovie
-        self.movie = QtGui.QMovie('waiting-spinner.gif', QByteArray(), self)
+        self.movie = QtGui.QMovie('./assets/waiting-spinner.gif', QByteArray(), self)
 
         self.setWindowTitle(title)
 

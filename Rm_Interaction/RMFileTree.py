@@ -1,5 +1,5 @@
-from RM_API import RM_API
-from RMFile import RMFile
+from Rm_Interaction.RM_API import RM_API
+from Rm_Interaction.RMFile import RMFile
 
 class RMFileTree():
     """

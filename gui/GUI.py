@@ -6,8 +6,8 @@ from PySide6.QtWidgets import (
     QListWidgetItem, QHBoxLayout, QFileDialog)
 from PySide6.QtCore import Qt, QSize, QRunnable, Signal, QThreadPool, QObject
 from PySide6.QtGui import QIcon
-from RMFileTree import RMFileTree
-from WaitingSpinner import WaitingSpinner
+from Rm_Interaction.RMFileTree import RMFileTree
+from gui.WaitingSpinner import WaitingSpinner
 
 class WorkerSignals(QObject):
     """
@@ -73,14 +73,14 @@ class MainWindow(QMainWindow):
 
         # Back Button
         btn = QPushButton()
-        btn.setIcon(QIcon('arrow-left.svg'))
+        btn.setIcon(QIcon('./assets/arrow-left.svg'))
         btn.setFixedSize(QSize(30, 30))
         btn.clicked.connect(self.go_back)
         top_bar.addWidget(btn)
 
         # File Dialog Button
         btn = QPushButton()
-        btn.setIcon(QIcon('folder.png'))
+        btn.setIcon(QIcon('./assets/folder.png'))
         btn.setFixedSize(QSize(30, 30))
         btn.clicked.connect(self.open_file_dialog)
         top_bar.addWidget(btn)
@@ -116,9 +116,9 @@ class MainWindow(QMainWindow):
         for file in dir:
             item = QListWidgetItem(file.get_name())
             item.setData(Qt.ItemDataRole.UserRole, file)
-            icon = "folder.png"
+            icon = "./assets/folder.png"
             if file.get_type() == "DocumentType":
-                icon = "document.png"
+                icon = "./assets/document.png"
             
             item.setIcon(QIcon(icon))
             self.list_widget.addItem(item)

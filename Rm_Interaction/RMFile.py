@@ -1,5 +1,5 @@
 import os
-from RM_API import RM_API
+from Rm_Interaction.RM_API import RM_API
 
 class RMFile():
     """

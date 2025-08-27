@@ -87,3 +87,13 @@ class RMFile():
             The files children
         """
         return self.__children
+    
+    def download(self, downloadPath):
+        """Downloads PDF of file and all children if collectiontype
+        """
+        api = RM_API()
+        if self.__type == 'DocumentType':
+            api.download(self.__ID, self.__vissibleName, downloadPath)
+        else:
+            for child in self.__children:
+                child.download(downloadPath)

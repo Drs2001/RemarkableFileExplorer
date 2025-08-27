@@ -1,7 +1,9 @@
+import os
+from pathlib import Path
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, 
     QPushButton,QScrollBar, QListWidget, 
-    QListWidgetItem)
+    QListWidgetItem, QHBoxLayout, QFileDialog)
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QIcon
 from RMFileTree import RMFileTree
@@ -9,6 +11,7 @@ from RMFileTree import RMFileTree
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.__downloadPath = str(Path.home() / 'Downloads')
 
         self.setWindowTitle("Remarkable File Explorer")
         window = QWidget()
@@ -26,12 +29,27 @@ class MainWindow(QMainWindow):
         scroll_bar.setStyleSheet("background : gray;")
         self.list_widget.setVerticalScrollBar(scroll_bar)
 
+        # create widgets for the top of the screen
+        top_bar = QHBoxLayout()
+
+        # Back Button
         btn = QPushButton()
         btn.setIcon(QIcon('arrow-left.svg'))
         btn.setFixedSize(QSize(30, 30))
         btn.clicked.connect(self.go_back)
-        layout.addWidget(btn)
+        top_bar.addWidget(btn)
 
+        # File Dialog Button
+        btn = QPushButton()
+        btn.setIcon(QIcon('folder.png'))
+        btn.setFixedSize(QSize(30, 30))
+        btn.clicked.connect(self.open_file_dialog)
+        top_bar.addWidget(btn)
+
+        # Add the top bar to the layout
+        layout.addLayout(top_bar)
+
+        # Add the Remarkable file directory to the layout
         layout.addWidget(self.list_widget)
 
         btn = QPushButton("Download")
@@ -86,5 +104,15 @@ class MainWindow(QMainWindow):
         """Downloads the selected document, or the entire folder and its subfolders
         of a selected folder.
         """
-        print(self.list_widget.selectedItems()[0].data(Qt.ItemDataRole.UserRole))
-        print(Qt.ItemDataRole.UserRole)
+        selected_items = self.list_widget.selectedItems()
+        if len(selected_items) > 0:
+            file = selected_items[0].data(Qt.ItemDataRole.UserRole)
+            file.download(self.__downloadPath)
+
+    def open_file_dialog(self):
+        """Opens the file dialog to allow the user to select a downloads folder
+        """
+        dlg = QFileDialog(self)
+        dlg.setDirectory(self.__downloadPath)
+        self.__downloadPath = dlg.getExistingDirectory(self, "Select a Directory")
+        

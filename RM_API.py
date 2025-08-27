@@ -77,3 +77,37 @@ class RM_API():
         response.encoding = 'UTF-8'
         metaData = response.json()
         return metaData
+    
+    def download(self, ID, fileName, downloadPath):
+        """Downloads document of id provided
+
+        Parameters
+        ----------
+        ID : str
+            The ID of the document to download
+        fileName : str
+            The name the file will be once downloaded on the system
+        downloadPath : str
+            The path to download the files to
+        """
+        url = self.RM_URL + '/download/' + ID + '/placeholder'
+
+        try:
+            response = requests.get(url, stream=True)
+            if not response.ok:
+                return False
+            
+            response.raw.decode_content = True
+
+            with open(str(downloadPath) + "/" + fileName + ".pdf", 'wb') as targetFile:
+                for chunk in response.iter_content(8192):
+                    targetFile.write(chunk)
+            return True
+        except Exception as e:
+            print(e.with_traceback())
+            print("Error: Unable to establish connection to tablet. Make sure the tablet is plugged in and USB sharing is enabled in the settings.")
+            sys.exit()
+
+        response.encoding = 'UTF-8'
+        metaData = response.json()
+        print(metaData)

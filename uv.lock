@@ -100,7 +100,7 @@ wheels = [
 ]
 
 [[package]]
-name = "remarkabletools"
+name = "remarkablefileexplorer"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

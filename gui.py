@@ -4,14 +4,53 @@ from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, 
     QPushButton,QScrollBar, QListWidget, 
     QListWidgetItem, QHBoxLayout, QFileDialog)
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt, QSize, QRunnable, Signal, QThreadPool, QObject
 from PySide6.QtGui import QIcon
 from RMFileTree import RMFileTree
+from WaitingSpinner import WaitingSpinner
+
+class WorkerSignals(QObject):
+    """
+    Signals from a worker thread
+    """
+
+    finished = Signal()
+    error = Signal(tuple)
+    result = Signal(object)
+
+class DownloadWorker(QRunnable):
+    """
+    A class used to store and represent a file from the file system on a Remarkable Tablet device.
+    A file can either be a CollectionType which is a folder containing other files, or a DocumentType
+    which is a pdf or remarkable document with no children.
+
+    ...
+
+    Attributes
+    ----------
+    file : RMFile
+        RMFile object that represents a document or folder on the tablet
+    download_path : str
+        The path we are downloading to
+    """
+    def __init__(self, file, download_path):
+        super().__init__()
+        self.file = file
+        self.download_path = download_path
+        self.signals = WorkerSignals()
+
+    def run(self):
+        """Run the worker
+        """
+        self.file.download(self.download_path)
+        self.signals.finished.emit()
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.__downloadPath = str(Path.home() / 'Downloads')
+        self.threadpool = QThreadPool()
+        thread_count = self.threadpool.maxThreadCount()
 
         self.setWindowTitle("Remarkable File Explorer")
         window = QWidget()
@@ -108,8 +147,25 @@ class MainWindow(QMainWindow):
         """
         selected_items = self.list_widget.selectedItems()
         if len(selected_items) > 0:
+            # Setup the download spinner
+            self.waiting_spinner = WaitingSpinner("Downloading...")
+            self.waiting_spinner.show()
+
+            # Disable the main window
+            self.setDisabled(True)
+
+            # Get the file and start the worker for download
             file = selected_items[0].data(Qt.ItemDataRole.UserRole)
-            file.download(self.__downloadPath)
+            worker = DownloadWorker(file, self.__downloadPath)
+            worker.signals.finished.connect(self.on_download_finished)
+            self.threadpool.start(worker)
+    
+    def on_download_finished(self):
+        """Closes the download spinner and reinables the window once the download has finished
+        """
+        self.waiting_spinner.close()
+        self.waiting_spinner.deleteLater()
+        self.setDisabled(False)
 
     def open_file_dialog(self):
         """Opens the file dialog to allow the user to select a downloads folder

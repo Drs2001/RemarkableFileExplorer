@@ -1,3 +1,4 @@
+import os
 from RM_API import RM_API
 
 class RMFile():
@@ -96,4 +97,7 @@ class RMFile():
             api.download(self.__ID, self.__vissibleName, downloadPath)
         else:
             for child in self.__children:
-                child.download(downloadPath)
+                newPath = downloadPath+ "\\" + self.__vissibleName
+                if not os.path.isdir(newPath):
+                    os.mkdir(newPath)
+                child.download(newPath)

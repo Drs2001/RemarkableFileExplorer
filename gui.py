@@ -46,6 +46,8 @@ class MainWindow(QMainWindow):
         btn.clicked.connect(self.open_file_dialog)
         top_bar.addWidget(btn)
 
+        top_bar.addStretch()
+
         # Add the top bar to the layout
         layout.addLayout(top_bar)
 
@@ -115,4 +117,3 @@ class MainWindow(QMainWindow):
         dlg = QFileDialog(self)
         dlg.setDirectory(self.__downloadPath)
         self.__downloadPath = dlg.getExistingDirectory(self, "Select a Directory")
-        

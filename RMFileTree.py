@@ -25,7 +25,7 @@ class RMFileTree():
             self.__baseDir.append(tempRMFile)
         
         self.__currentDir = self.__baseDir
-        self.__previouseDir = self.__baseDir
+        self.__previousDir = []
     
     def get_current_dir(self):
         """Gets the current dir the user is in
@@ -55,5 +55,15 @@ class RMFileTree():
         dir : list(RMFiles)
             The directory to update to
         """
-        self.__previouseDir = self.__currentDir
+        self.__previousDir.append(self.__currentDir)
         self.__currentDir = dir
+    
+    def back_to_previous(self):
+        """Updates the current directory to the previous one
+        """
+        if len(self.__previousDir) != 0:
+            index = len(self.__previousDir) - 1
+            self.__currentDir = self.__previousDir[index]
+            self.__previousDir = self.__previousDir[:-1]
+        else:
+            self.__currentDir = self.__baseDir

@@ -2,7 +2,7 @@ from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, 
     QPushButton,QScrollBar, QListWidget, 
     QListWidgetItem)
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QIcon
 from RMFileTree import RMFileTree
 
@@ -25,6 +25,12 @@ class MainWindow(QMainWindow):
         scroll_bar = QScrollBar()
         scroll_bar.setStyleSheet("background : gray;")
         self.list_widget.setVerticalScrollBar(scroll_bar)
+
+        btn = QPushButton()
+        btn.setIcon(QIcon('arrow-left.svg'))
+        btn.setFixedSize(QSize(30, 30))
+        btn.clicked.connect(self.go_back)
+        layout.addWidget(btn)
 
         layout.addWidget(self.list_widget)
 
@@ -68,6 +74,13 @@ class MainWindow(QMainWindow):
             new_dir = file.get_children()
             self.fileTree.update_current_dir(new_dir)
             self.update_list(new_dir)
+    
+    def go_back(self):
+        """Goes back to the previous directory
+        """
+        self.fileTree.back_to_previous()
+        self.clear_list()
+        self.update_list(self.fileTree.get_current_dir())
 
     def download_selected(self):
         """Downloads the selected document, or the entire folder and its subfolders

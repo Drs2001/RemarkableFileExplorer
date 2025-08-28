@@ -1,6 +1,10 @@
+import os
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
 from PySide6.QtCore import QByteArray
 from PySide6 import QtGui
+
+basedir = os.path.dirname(__file__)
+assetsdir = 'assets'
 
 class WaitingSpinner(QWidget):
     """
@@ -17,7 +21,7 @@ class WaitingSpinner(QWidget):
         QWidget.__init__(self, parent)
 
         # Load the file into a QMovie
-        self.movie = QtGui.QMovie('./assets/waiting-spinner.gif', QByteArray(), self)
+        self.movie = QtGui.QMovie(os.path.join(basedir, assetsdir, 'waiting-spinner.gif'), QByteArray(), self)
 
         self.setWindowTitle(title)
 

@@ -1,5 +1,8 @@
 import os
+from typing import Final
 from Rm_Interaction.RM_API import RM_API
+
+API: Final = RM_API()
 
 class RMFile():
     """
@@ -34,7 +37,6 @@ class RMFile():
             The data of the file used to create out object
         parent : The parent object of this file 
         """
-        api = RM_API()
         self.__bookmarked = file['Bookmarked']
         self.__ID = file['ID']
         self.__modified_client = file['ModifiedClient']
@@ -44,7 +46,7 @@ class RMFile():
         self.__children = []
 
         if self.__type == 'CollectionType':
-            files = api.get_directory(self.__ID)
+            files = API.get_directory(self.__ID)
             for file in files:
                 tempFile = RMFile(file, self)
                 self.__children.append(tempFile)
@@ -92,9 +94,8 @@ class RMFile():
     def download(self, downloadPath):
         """Downloads PDF of file and all children if collectiontype
         """
-        api = RM_API()
         if self.__type == 'DocumentType':
-            api.download(self.__ID, self.__vissibleName, downloadPath)
+            API.download(self.__ID, self.__vissibleName, downloadPath)
         else:
             for child in self.__children:
                 newPath = downloadPath+ "\\" + self.__vissibleName
@@ -103,6 +104,13 @@ class RMFile():
                 child.download(newPath)
 
     def search_children(self, search_text):
+        """Searches files children for the passed in text
+
+        Parameters
+        ----------
+        search_text : str
+            The text we are searching for
+        """
         matches = []
         for file in self.__children:
             if file.get_type() == "DocumentType":

@@ -1,19 +1,12 @@
 import requests
-import sys
+from typing import Final
+
+RM_URL: Final = 'http://10.11.99.1'
 
 class RM_API():
     """
     Class to interface with the Remarkable Tablets web based API
-
-    ...
-
-    Attributes
-    ----------
-    RM_URL : str
-        The url that the Remarkable tablets web api address is at
     """
-    def __init__(self):
-        self.RM_URL = 'http://10.11.99.1'
 
     def printTreeStructure(self, parentID=None, depth=0, withID=False):
         """Prints the file structure of the connected Remarkable Tablet
@@ -27,7 +20,7 @@ class RM_API():
         withID : bool
             Controls wether to print with the documents ID or not
         """
-        url = self.RM_URL + '/documents/'
+        url = RM_URL + '/documents/'
 
         if parentID is not None:
             url = url + parentID
@@ -36,7 +29,6 @@ class RM_API():
             response = requests.get(url)
         except Exception as e:
             print("Error: Unable to establish connection to tablet. Make sure the tablet is plugged in and USB sharing is enabled in the settings.")
-            sys.exit()
 
         response.encoding = 'UTF-8'
         metaData = response.json()
@@ -64,7 +56,7 @@ class RM_API():
         list
             a list of dictonarys representing the files on the Remarkable
         """
-        url = self.RM_URL + '/documents/'
+        url = RM_URL + '/documents/'
         if id is not None:
             url = url + id
         
@@ -72,7 +64,6 @@ class RM_API():
             response = requests.get(url)
         except Exception as e:
             print("Error: Unable to establish connection to tablet. Make sure the tablet is plugged in and USB sharing is enabled in the settings.")
-            sys.exit()
 
         response.encoding = 'UTF-8'
         metaData = response.json()
@@ -90,7 +81,7 @@ class RM_API():
         downloadPath : str
             The path to download the files to
         """
-        url = self.RM_URL + '/download/' + ID + '/placeholder'
+        url = RM_URL + '/download/' + ID + '/placeholder'
 
         try:
             response = requests.get(url, stream=True)
@@ -104,6 +95,4 @@ class RM_API():
                     targetFile.write(chunk)
             return True
         except Exception as e:
-            print(e.with_traceback())
             print("Error: Unable to establish connection to tablet. Make sure the tablet is plugged in and USB sharing is enabled in the settings.")
-            sys.exit()

@@ -1,6 +1,9 @@
 import os
+from typing import Final
 from Rm_Interaction.RM_API import RM_API
 from Rm_Interaction.RMFile import RMFile
+
+API: Final = RM_API()
 
 class RMFileTree():
     """
@@ -18,13 +21,32 @@ class RMFileTree():
         The list of files in the previous directory the user was in
     """
     def __init__(self):
-        api = RM_API()
         self.__baseDir = []
-        files = api.get_directory()
-        for file in files:
-            tempRMFile = RMFile(file)
-            self.__baseDir.append(tempRMFile)
-        
+        try:
+            files = API.get_directory()
+            for file in files:
+                tempRMFile = RMFile(file)
+                self.__baseDir.append(tempRMFile)
+        except:
+            pass
+            
+        self.__currentDir = self.__baseDir
+        self.__previousDir = []
+        self.__searchDir = []
+    
+    def refresh_tree(self):
+        """Complete refresh and rebuilding of the file system
+        """
+
+        self.__baseDir = []
+        try:
+            files = API.get_directory()
+            for file in files:
+                tempRMFile = RMFile(file)
+                self.__baseDir.append(tempRMFile)
+        except:
+            pass
+
         self.__currentDir = self.__baseDir
         self.__previousDir = []
         self.__searchDir = []

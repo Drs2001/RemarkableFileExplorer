@@ -1,4 +1,5 @@
 import os
+from typing import Final
 from pathlib import Path
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, 
@@ -10,8 +11,8 @@ from PySide6.QtGui import QIcon
 from Rm_Interaction.RMFileTree import RMFileTree
 from gui.WaitingSpinner import WaitingSpinner
 
-basedir = os.path.dirname(__file__)
-assetsdir = 'assets'
+BASEDIR: Final = os.path.dirname(__file__)
+ASSETSDIR: Final = 'assets'
 
 class WorkerSignals(QObject):
     """
@@ -105,16 +106,16 @@ class MainWindow(QMainWindow):
 
         # Back Button
         btn = QPushButton()
-        btn.setIcon(QIcon(os.path.join(basedir, assetsdir, 'arrow-left.svg')))
+        btn.setIcon(QIcon(os.path.join(BASEDIR, ASSETSDIR, 'arrow-left.svg')))
         btn.setFixedSize(QSize(30, 30))
         btn.clicked.connect(self.go_back)
         top_bar.addWidget(btn)
 
-        # File Dialog Button
+        # Refresh
         btn = QPushButton()
-        btn.setIcon(QIcon(os.path.join(basedir, assetsdir, 'folder.png')))
+        btn.setIcon(QIcon(os.path.join(BASEDIR, ASSETSDIR, 'refresh.png')))
         btn.setFixedSize(QSize(30, 30))
-        btn.clicked.connect(self.open_file_dialog)
+        btn.clicked.connect(self.refresh_filetree)
         top_bar.addWidget(btn)
 
         top_bar.addStretch()
@@ -125,6 +126,13 @@ class MainWindow(QMainWindow):
         top_bar.addWidget(self.search_bar)
 
         top_bar.addStretch()
+
+        # File Dialog Button
+        btn = QPushButton()
+        btn.setIcon(QIcon(os.path.join(BASEDIR, ASSETSDIR, 'folder.png')))
+        btn.setFixedSize(QSize(30, 30))
+        btn.clicked.connect(self.open_file_dialog)
+        top_bar.addWidget(btn)
 
         # Add the top bar to the layout
         layout.addLayout(top_bar)
@@ -147,6 +155,13 @@ class MainWindow(QMainWindow):
 
         window.setLayout(layout)
         self.setCentralWidget(window)
+
+    def refresh_filetree(self):
+        """Refreshes and rebuilds the filetree
+        """
+        self.fileTree.refresh_tree()
+        self.clear_list()
+        self.update_list(self.fileTree.get_current_dir())
     
     def clear_list(self):
         """Clears the directory list
@@ -164,9 +179,9 @@ class MainWindow(QMainWindow):
         for file in dir:
             item = QListWidgetItem(file.get_name())
             item.setData(Qt.ItemDataRole.UserRole, file)
-            icon = os.path.join(basedir, assetsdir, 'folder.png')
+            icon = os.path.join(BASEDIR, ASSETSDIR, 'folder.png')
             if file.get_type() == "DocumentType":
-                icon = os.path.join(basedir, assetsdir, 'document.png')
+                icon = os.path.join(BASEDIR, ASSETSDIR, 'document.png')
             
             item.setIcon(QIcon(icon))
             self.list_widget.addItem(item)

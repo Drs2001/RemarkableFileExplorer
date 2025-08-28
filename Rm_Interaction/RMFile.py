@@ -101,3 +101,14 @@ class RMFile():
                 if not os.path.isdir(newPath):
                     os.mkdir(newPath)
                 child.download(newPath)
+
+    def search_children(self, search_text):
+        matches = []
+        for file in self.__children:
+            if file.get_type() == "DocumentType":
+                if search_text.lower() in file.get_name().lower():
+                    matches.append(file)
+            else:
+                matches = matches + file.search_children(search_text)
+        
+        return matches

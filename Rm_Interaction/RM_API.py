@@ -107,7 +107,3 @@ class RM_API():
             print(e.with_traceback())
             print("Error: Unable to establish connection to tablet. Make sure the tablet is plugged in and USB sharing is enabled in the settings.")
             sys.exit()
-
-        response.encoding = 'UTF-8'
-        metaData = response.json()
-        print(metaData)

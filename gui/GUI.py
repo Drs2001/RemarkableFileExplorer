@@ -2,7 +2,8 @@ from pathlib import Path
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, 
     QPushButton,QScrollBar, QListWidget, 
-    QListWidgetItem, QHBoxLayout, QFileDialog)
+    QListWidgetItem, QHBoxLayout, QFileDialog,
+    QLineEdit)
 from PySide6.QtCore import Qt, QSize, QRunnable, Signal, QThreadPool, QObject
 from PySide6.QtGui import QIcon
 from Rm_Interaction.RMFileTree import RMFileTree
@@ -47,6 +48,7 @@ class DownloadWorker(QRunnable):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.__searchLength = 0
         self.__downloadPath = str(Path.home() / 'Downloads')
         self.threadpool = QThreadPool()
         thread_count = self.threadpool.maxThreadCount()
@@ -86,6 +88,13 @@ class MainWindow(QMainWindow):
 
         top_bar.addStretch()
 
+        # Add Search bar
+        self.search_bar = QLineEdit()
+        self.search_bar.textChanged.connect(self.search_Files)
+        top_bar.addWidget(self.search_bar)
+
+        top_bar.addStretch()
+
         # Add the top bar to the layout
         layout.addLayout(top_bar)
 
@@ -121,6 +130,14 @@ class MainWindow(QMainWindow):
             
             item.setIcon(QIcon(icon))
             self.list_widget.addItem(item)
+
+    def search_Files(self):
+        self.clear_list()
+        if self.search_bar.text() == "":
+            self.fileTree.clear_search()
+            self.update_list(self.fileTree.get_current_dir())
+        else:
+            self.update_list(self.fileTree.search_docs(self.search_bar.text()))
     
     def navigate(self):
         """Navigates to the new directory of the folder double clicked,

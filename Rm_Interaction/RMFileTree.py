@@ -26,6 +26,7 @@ class RMFileTree():
         
         self.__currentDir = self.__baseDir
         self.__previousDir = []
+        self.__searchDir = []
     
     def get_current_dir(self):
         """Gets the current dir the user is in
@@ -67,3 +68,35 @@ class RMFileTree():
             self.__previousDir = self.__previousDir[:-1]
         else:
             self.__currentDir = self.__baseDir
+
+    def search_docs(self, search_text):
+        """Searches through all folders for documents with names containing the passed in string,
+        sets the current directory to the results
+
+        Parameters
+        ----------
+        search_text : str
+            The string we are searching for
+        
+        Returns
+        -------
+        list
+            The files containing the search term
+        """
+        if len(self.__searchDir) == 0:
+            for file in self.__baseDir:
+                if file.get_type() == "DocumentType":
+                    if search_text.lower() in file.get_name().lower():
+                        self.__searchDir.append(file)
+                else:
+                    self.__searchDir = self.__searchDir + file.search_children(search_text)
+        else:
+            temp = []
+            for file in self.__searchDir:
+                if search_text.lower() in file.get_name().lower():
+                    temp.append(file)
+            self.__searchDir = temp
+        return self.__searchDir
+
+    def clear_search(self):
+        self.__searchDir = []

@@ -1,7 +1,7 @@
 # Remarkable File Explorer
 A GUI application meant to interface with remarkable tablets and allow for a much easier to use and less laggy interface than the default web UI provided for local access.
 
-# Buld from Scratch
+# Build from Scratch
 
 ## Virtual Environment Setup
 The pyproject.toml and uv.lock files are already provided so simple run 'uv sync' to initialize the project and create your virtual environment. Alternativally a requirements.txt file is provided if you'd like to use something else like conda.

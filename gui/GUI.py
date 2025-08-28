@@ -20,9 +20,7 @@ class WorkerSignals(QObject):
 
 class DownloadWorker(QRunnable):
     """
-    A class used to store and represent a file from the file system on a Remarkable Tablet device.
-    A file can either be a CollectionType which is a folder containing other files, or a DocumentType
-    which is a pdf or remarkable document with no children.
+    A class used to represent a worker meant to download files
 
     ...
 
@@ -32,6 +30,8 @@ class DownloadWorker(QRunnable):
         RMFile object that represents a document or folder on the tablet
     download_path : str
         The path we are downloading to
+    signals : WorkerSignals
+        Signals for our thread
     """
     def __init__(self, file, download_path):
         super().__init__()
@@ -43,6 +43,33 @@ class DownloadWorker(QRunnable):
         """Run the worker
         """
         self.file.download(self.download_path)
+        self.signals.finished.emit()
+
+class BackupWorker(QRunnable):
+    """
+    A class used to represent a worker meant to backup the tablet
+
+    ...
+
+    Attributes
+    ----------
+    fileTree : RMFileTree
+        RMFileTree object that represents the RM file system
+    download_path : str
+        The path we are downloading to
+    signals : WorkerSignals
+        Signals for our thread
+    """
+    def __init__(self, fileTree, download_path):
+        super().__init__()
+        self.fileTree = fileTree
+        self.download_path = download_path
+        self.signals = WorkerSignals()
+
+    def run(self):
+        """Run the worker
+        """
+        self.fileTree.backup_tablet(self.download_path)
         self.signals.finished.emit()
 
 class MainWindow(QMainWindow):
@@ -101,9 +128,18 @@ class MainWindow(QMainWindow):
         # Add the Remarkable file directory to the layout
         layout.addWidget(self.list_widget)
 
-        btn = QPushButton("Download")
+        # create widgets for the top of the screen
+        bottom_bar = QHBoxLayout()
+
+        btn = QPushButton("Download Selected")
         btn.clicked.connect(self.download_selected)
-        layout.addWidget(btn)
+        bottom_bar.addWidget(btn)
+
+        btn = QPushButton("Backup Tablet")
+        btn.clicked.connect(self.backup_tablet)
+        bottom_bar.addWidget(btn)
+
+        layout.addLayout(bottom_bar)
 
         window.setLayout(layout)
         self.setCentralWidget(window)
@@ -135,9 +171,18 @@ class MainWindow(QMainWindow):
         self.clear_list()
         if self.search_bar.text() == "":
             self.fileTree.clear_search()
+            self.clear_list()
             self.update_list(self.fileTree.get_current_dir())
         else:
-            self.update_list(self.fileTree.search_docs(self.search_bar.text()))
+            # For the first increase we want to populate the search results so we do a full search
+            if len(self.search_bar.text()) == 1 and not self.__searchLength > len(self.search_bar.text()):
+                self.clear_list()
+                self.update_list(self.fileTree.full_search_docs(self.search_bar.text()))
+            # For every new character added to the search from the first we want to search the current search results to save time
+            elif len(self.search_bar.text()) > self.__searchLength:
+                self.clear_list()
+                self.update_list(self.fileTree.half_search_docs(self.search_bar.text()))
+        self.__searchLength = len(self.search_bar.text())
     
     def navigate(self):
         """Navigates to the new directory of the folder double clicked,
@@ -175,6 +220,21 @@ class MainWindow(QMainWindow):
             worker = DownloadWorker(file, self.__downloadPath)
             worker.signals.finished.connect(self.on_download_finished)
             self.threadpool.start(worker)
+
+    def backup_tablet(self):
+        """Downloads the entire tablet
+        """
+        # Setup the download spinner
+        self.waiting_spinner = WaitingSpinner("Downloading...")
+        self.waiting_spinner.show()
+
+        # Disable the main window
+        self.setDisabled(True)
+
+        # Get the file and start the worker for download
+        worker = BackupWorker(self.fileTree, self.__downloadPath)
+        worker.signals.finished.connect(self.on_download_finished)
+        self.threadpool.start(worker)
     
     def on_download_finished(self):
         """Closes the download spinner and reinables the window once the download has finished

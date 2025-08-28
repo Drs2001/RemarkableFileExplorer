@@ -1,3 +1,4 @@
+import os
 from Rm_Interaction.RM_API import RM_API
 from Rm_Interaction.RMFile import RMFile
 
@@ -69,7 +70,7 @@ class RMFileTree():
         else:
             self.__currentDir = self.__baseDir
 
-    def search_docs(self, search_text):
+    def full_search_docs(self, search_text):
         """Searches through all folders for documents with names containing the passed in string,
         sets the current directory to the results
 
@@ -83,20 +84,49 @@ class RMFileTree():
         list
             The files containing the search term
         """
-        if len(self.__searchDir) == 0:
-            for file in self.__baseDir:
-                if file.get_type() == "DocumentType":
-                    if search_text.lower() in file.get_name().lower():
-                        self.__searchDir.append(file)
-                else:
-                    self.__searchDir = self.__searchDir + file.search_children(search_text)
-        else:
-            temp = []
-            for file in self.__searchDir:
+        for file in self.__baseDir:
+            if file.get_type() == "DocumentType":
                 if search_text.lower() in file.get_name().lower():
-                    temp.append(file)
-            self.__searchDir = temp
+                    self.__searchDir.append(file)
+            else:
+                self.__searchDir = self.__searchDir + file.search_children(search_text)
+        return self.__searchDir
+
+    def half_search_docs(self, search_text):
+        """Simply searches through the current search results
+
+        Parameters
+        ----------
+        search_text : str
+            The string we are searching for
+        
+        Returns
+        -------
+        list
+            The files containing the search term
+        """
+        temp = []
+        for file in self.__searchDir:
+            if search_text.lower() in file.get_name().lower():
+                temp.append(file)
+        self.__searchDir = temp
         return self.__searchDir
 
     def clear_search(self):
+        """Clears the search results list
+        """
         self.__searchDir = []
+
+    def backup_tablet(self, downloadPath):
+        """Backs up the entire tablet
+
+        Parameters
+        ----------
+        downloadPath : str
+            The path we are downloading to
+        """
+        newPath = downloadPath + "\\RM_Tablet_Backup"
+        if not os.path.isdir(newPath):
+                os.mkdir(newPath)
+        for file in self.__baseDir:
+            file.download(newPath)
